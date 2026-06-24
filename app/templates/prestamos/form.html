@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block page_title %}Nuevo prestamo{% endblock %}
+{% block content %}
+<h3 class="fw-bold mb-3">Nuevo prestamo</h3>
+<div class="card card-pro">
+  <div class="card-body">
+    <form method="post" class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">Usuario</label>
+        <select name="usuario_id" class="form-select" required>
+          {% for u in usuarios %}
+          <option value="{{u.id}}">{{u.nombre}} - {{u.rol.nombre}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-5">
+        <label class="form-label">Libro</label>
+        <select name="libro_id" class="form-select" required>
+          {% for l in libros %}
+          <option value="{{l.id}}" {% if l.disponible <= 0 %}disabled{% endif %}>
+            {{l.titulo}} | Disponible: {{l.disponible}}
+          </option>
+          {% endfor %}
+        </select>
+        <small class="text-muted">Los libros sin stock quedan bloqueados automaticamente.</small>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Fecha entrega</label>
+        <input name="fecha_devolucion" type="date" class="form-control" value="{{ fecha_default }}" required />
+      </div>
+      <div class="col-12">
+        <button class="btn btn-primary">Guardar</button>
+        <a href="{{ url_for('prestamos.listar') }}" class="btn btn-light">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

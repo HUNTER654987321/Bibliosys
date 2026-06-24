@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block page_title %}Configuracion{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card card-pro">
+      <div class="card-header bg-white fw-bold">Datos del usuario</div>
+      <div class="card-body">
+        <form method="post" class="row g-3">
+          <input type="hidden" name="tipo_form" value="usuario">
+          <div class="col-md-6">
+            <label class="form-label">Nombre</label>
+            <input name="nombre" value="{{ current_user.nombre }}" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Correo</label>
+            <input name="email" type="email" value="{{ current_user.email }}" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Nueva contrasena</label>
+            <input name="password" type="password" class="form-control" placeholder="Dejar vacio para no cambiar">
+          </div>
+          <div class="col-12"><button class="btn btn-primary">Guardar usuario</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card card-pro">
+      <div class="card-header bg-white fw-bold">Configuracion del sistema</div>
+      <div class="card-body">
+        {% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}
+        <form method="post" class="row g-3">
+          <input type="hidden" name="tipo_form" value="sistema">
+          <div class="col-md-6">
+            <label class="form-label">Nombre de biblioteca</label>
+            <input name="nombre_biblioteca" value="{{ config.nombre_biblioteca }}" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Correo institucional</label>
+            <input name="correo" type="email" value="{{ config.correo }}" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Telefono</label>
+            <input name="telefono" value="{{ config.telefono }}" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Direccion</label>
+            <input name="direccion" value="{{ config.direccion }}" class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Dias de prestamo</label>
+            <input name="dias_prestamo" type="number" min="1" value="{{ config.dias_prestamo }}" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Multa por dia (Bs)</label>
+            <input name="multa_por_dia" type="number" min="0" step="0.50" value="{{ config.multa_por_dia }}" class="form-control" required>
+          </div>
+          <div class="col-12"><button class="btn btn-primary">Guardar sistema</button></div>
+        </form>
+        {% else %}
+        <p><strong>Nombre:</strong> {{ config.nombre_biblioteca }}</p>
+        <p><strong>Correo:</strong> {{ config.correo }}</p>
+        <p><strong>Telefono:</strong> {{ config.telefono or 'No registrado' }}</p>
+        <p><strong>Direccion:</strong> {{ config.direccion or 'No registrada' }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

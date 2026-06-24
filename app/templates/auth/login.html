@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block public_content %}
+<div class="login-page">
+  <div class="container position-relative">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-5 col-xl-4">
+        <div class="login-card p-4 p-lg-5">
+          <div class="login-brand mb-3"><i class="bi bi-book-half"></i></div>
+          <h3 class="text-center fw-black mb-1">BiblioSys Pro</h3>
+          <p class="text-center text-muted mb-4">Accede al panel de tu biblioteca</p>
+          {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in
+          messages %}<div class="alert alert-{{ category }}">{{ message }}</div>{% endfor %}{% endif %}{% endwith %}
+          <form method="post">
+            <div class="mb-3"><label class="form-label fw-bold">Email</label><input name="email" type="email"
+                class="form-control" placeholder="admin@biblioteca.com" required></div>
+            <div class="mb-4"><label class="form-label fw-bold">Contrasena</label><input name="password" type="password"
+                class="form-control" placeholder="admin123" required></div>
+            <button class="btn btn-primary w-100 py-2">Ingresar</button>
+          </form>
+          <div class="text-center mt-4"><small class="text-muted">Datos de acceso: admin@biblioteca.com /
+              admin123</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

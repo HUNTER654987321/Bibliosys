@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ 'Editar libro' if libro else 'Nuevo libro' }}{% endblock %}
+{% block content %}
+<h3 class="fw-bold mb-3">{{ 'Editar libro' if libro else 'Nuevo libro' }}</h3>
+<div class="card card-pro">
+  <div class="card-body">
+    {% if not autores %}<div class="alert alert-warning">Primero debe registrar al menos un autor en el modulo Catalogos.</div>{% endif %}
+    <form method="post" class="row g-3">
+      <div class="col-md-6"><label class="form-label">Titulo</label><input name="titulo" value="{{ libro.titulo if libro else '' }}" class="form-control" required></div>
+      <div class="col-md-3"><label class="form-label">ISBN</label><input name="isbn" value="{{ libro.isbn if libro else '' }}" class="form-control" required></div>
+      <div class="col-md-3"><label class="form-label">Anio</label><input name="anio" type="number" value="{{ libro.anio if libro else '' }}" class="form-control"></div>
+      <div class="col-md-3"><label class="form-label">Stock</label><input name="stock" type="number" min="0" value="{{ libro.stock if libro else 1 }}" class="form-control" required><small class="text-muted">No puede ser menor a los prestamos pendientes.</small></div>
+      <div class="col-md-3"><label class="form-label">Ubicacion</label><input name="ubicacion" value="{{ libro.ubicacion if libro else '' }}" class="form-control"></div>
+      <div class="col-md-3"><label class="form-label">Categoria</label><select name="categoria_id" class="form-select" required>{% for c in categorias %}<option value="{{ c.id }}" {% if libro and libro.categoria_id == c.id %}selected{% endif %}>{{ c.nombre }}</option>{% endfor %}</select></div>
+      <div class="col-md-3"><label class="form-label">Editorial</label><select name="editorial_id" class="form-select" required>{% for e in editoriales %}<option value="{{ e.id }}" {% if libro and libro.editorial_id == e.id %}selected{% endif %}>{{ e.nombre }}</option>{% endfor %}</select></div>
+      <div class="col-md-6">
+        <label class="form-label">Autor(es)</label>
+        <select name="autor_ids" class="form-select" multiple size="4" required>
+          {% for a in autores %}<option value="{{ a.id }}" {% if a.id in selected_autores %}selected{% endif %}>{{ a.nombre }}</option>{% endfor %}
+        </select>
+        <small class="text-muted">Puede seleccionar mas de un autor usando Ctrl + clic.</small>
+      </div>
+      {% if libro %}<div class="col-md-6"><div class="alert alert-info mb-0">Prestamos pendientes de este libro: <strong>{{ libro.prestamos_pendientes }}</strong>. Disponible actual: <strong>{{ libro.disponible }}</strong>.</div></div>{% endif %}
+      <div class="col-12"><button class="btn btn-primary" {% if not autores %}disabled{% endif %}>Guardar</button><a href="{{ url_for('libros.listar') }}" class="btn btn-light">Cancelar</a></div>
+    </form>
+  </div>
+</div>
+{% endblock %}

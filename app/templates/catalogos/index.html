@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block page_title %}Catalogos{% endblock %}
+{% block content %}
+<h3 class="fw-bold mb-3">Catalogos</h3>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card card-pro h-100">
+      <div class="card-header bg-white fw-bold">
+        <i class="bi bi-tags"></i> Categorias
+      </div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('catalogos.categoria') }}" class="mb-3">
+          <input name="nombre" class="form-control mb-2" placeholder="Nombre" required>
+          <input name="descripcion" class="form-control mb-2" placeholder="Descripción">
+          <button class="btn btn-primary w-100">
+            <i class="bi bi-save"></i> Guardar categoria
+          </button>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in categorias %}
+              <tr>
+                <td>
+                  <strong>{{ c.nombre }}</strong><br>
+                  <small class="text-muted">{{ c.descripcion or 'Sin descripción' }}</small>
+                </td>
+                <td class="text-end">
+                  <a href="{{ url_for('catalogos.editar_categoria', id=c.id) }}" class="btn btn-sm btn-outline-primary mb-1">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <form action="{{ url_for('catalogos.eliminar_categoria', id=c.id) }}" method="post" class="d-inline">
+                    <button class="btn btn-sm btn-outline-danger mb-1" onclick="return confirm('¿Seguro que desea eliminar esta categoría?')">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="2" class="text-center text-muted">No hay categorias.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-pro h-100">
+      <div class="card-header bg-white fw-bold">
+        <i class="bi bi-building"></i> Editoriales
+      </div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('catalogos.editorial') }}" class="mb-3">
+          <input name="nombre" class="form-control mb-2" placeholder="Nombre" required>
+          <input name="ciudad" class="form-control mb-2" placeholder="Ciudad">
+          <button class="btn btn-primary w-100">
+            <i class="bi bi-save"></i> Guardar editorial
+          </button>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in editoriales %}
+              <tr>
+                <td>
+                  <strong>{{ e.nombre }}</strong><br>
+                  <small class="text-muted">{{ e.ciudad or 'Sin ciudad' }}</small>
+                </td>
+                <td class="text-end">
+                  <a href="{{ url_for('catalogos.editar_editorial', id=e.id) }}" class="btn btn-sm btn-outline-primary mb-1">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <form action="{{ url_for('catalogos.eliminar_editorial', id=e.id) }}" method="post" class="d-inline">
+                    <button class="btn btn-sm btn-outline-danger mb-1" onclick="return confirm('¿Seguro que desea eliminar esta editorial?')">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="2" class="text-center text-muted">No hay editoriales.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-pro h-100">
+      <div class="card-header bg-white fw-bold">
+        <i class="bi bi-person-lines-fill"></i> Autores
+      </div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('catalogos.autor') }}" class="mb-3">
+          <input name="nombre" class="form-control mb-2" placeholder="Nombre" required>
+          <input name="nacionalidad" class="form-control mb-2" placeholder="Nacionalidad">
+          <button class="btn btn-primary w-100">
+            <i class="bi bi-save"></i> Guardar autor
+          </button>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in autores %}
+              <tr>
+                <td>
+                  <strong>{{ a.nombre }}</strong><br>
+                  <small class="text-muted">{{ a.nacionalidad or 'Sin nacionalidad' }}</small>
+                </td>
+                <td class="text-end">
+                  <a href="{{ url_for('catalogos.editar_autor', id=a.id) }}" class="btn btn-sm btn-outline-primary mb-1">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <form action="{{ url_for('catalogos.eliminar_autor', id=a.id) }}" method="post" class="d-inline">
+                    <button class="btn btn-sm btn-outline-danger mb-1" onclick="return confirm('¿Seguro que desea eliminar este autor?')">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="2" class="text-center text-muted">No hay autores.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

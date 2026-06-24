@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block page_title %}Usuarios{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="fw-bold">Usuarios</h3>
+  <a href="{{ url_for('usuarios.nuevo') }}" class="btn btn-primary"><i class="bi bi-person-plus"></i> Nuevo usuario</a>
+</div>
+
+<div class="card card-pro">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Prestamos</th><th class="text-end">Acciones</th></tr>
+        </thead>
+        <tbody>
+          {% for u in usuarios %}
+          <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.nombre }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.rol.nombre if u.rol else 'Sin rol' }}</td>
+            <td>{% if u.activo %}<span class="badge bg-success">Activo</span>{% else %}<span class="badge bg-secondary">Inactivo</span>{% endif %}</td>
+            <td><a href="{{ url_for('prestamos.historial', usuario_id=u.id) }}" class="btn btn-sm btn-outline-info"><i class="bi bi-clock-history"></i> Historial ({{ u.prestamos|length }})</a></td>
+            <td class="text-end">
+              <a href="{{ url_for('usuarios.editar', id=u.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i> Editar</a>
+              <form action="{{ url_for('usuarios.cambiar_estado', id=u.id) }}" method="post" class="d-inline">
+                <button class="btn btn-sm btn-outline-warning" onclick="return confirm('¿Desea cambiar el estado de este usuario?')">
+                  {% if u.activo %}<i class="bi bi-person-dash"></i> Desactivar{% else %}<i class="bi bi-person-check"></i> Activar{% endif %}
+                </button>
+              </form>
+              <form action="{{ url_for('usuarios.eliminar', id=u.id) }}" method="post" class="d-inline">
+                <button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Seguro que desea eliminar este usuario?')"><i class="bi bi-trash"></i> Eliminar</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="text-center text-muted">No hay usuarios registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

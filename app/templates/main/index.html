@@ -1,0 +1,19 @@
+{% extends 'base.html' %}{% block public_content %}
+<section class="login-page">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-white">
+                <h1 class="display-4 fw-bold">Bibliosys</h1>
+                <p class="lead">Sistema web para administrar libros, usuarios, prestamos, devoluciones y reportes.</p><a
+                    href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">Ingresar al sistema</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="card login-card p-4">
+                    <h4>Proyecto final Flask</h4>
+                    <p class="text-muted mb-0">Application Factory, SQLAlchemy, Bootstrap, roles y despliegue.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

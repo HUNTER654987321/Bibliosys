@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block page_title %}Busqueda global{% endblock %}
+{% block content %}
+<div class="card card-pro mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-center">
+      <div class="col-md-10">
+        <input name="q" value="{{ q }}" class="form-control form-control-lg" placeholder="Buscar libros, autores, usuarios, ISBN, categorias, editoriales o prestamos">
+      </div>
+      <div class="col-md-2 d-grid"><button class="btn btn-primary btn-lg"><i class="bi bi-search"></i> Buscar</button></div>
+    </form>
+  </div>
+</div>
+
+{% if q %}
+<div class="row g-4">
+  <div class="col-xl-6">
+    <div class="table-wrap">
+      <div class="p-3"><h5 class="m-0 fw-bold">Libros encontrados</h5></div>
+      <table class="table table-hover">
+        <thead><tr><th>Titulo</th><th>Autor(es)</th><th>ISBN</th><th>Disponible</th></tr></thead>
+        <tbody>
+          {% for libro in libros %}
+          <tr>
+            <td>{{ libro.titulo }}</td>
+            <td>{{ libro.autores | map(attribute='nombre') | join(', ') }}</td>
+            <td>{{ libro.isbn }}</td>
+            <td><span class="badge {{ 'badge-ok' if libro.disponible > 0 else 'badge-danger-soft' }}">{{ libro.disponible }}</span></td>
+          </tr>
+          {% else %}<tr><td colspan="4" class="text-center text-muted py-4">No se encontraron libros</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="table-wrap mb-4">
+      <div class="p-3"><h5 class="m-0 fw-bold">Usuarios encontrados</h5></div>
+      <table class="table table-hover">
+        <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Historial</th></tr></thead>
+        <tbody>
+          {% for usuario in usuarios %}
+          <tr>
+            <td>{{ usuario.nombre }}</td><td>{{ usuario.email }}</td><td>{{ usuario.rol.nombre }}</td>
+            <td>{% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}<a class="btn btn-sm btn-outline-info" href="{{ url_for('prestamos.historial', usuario_id=usuario.id) }}">Ver</a>{% else %}-{% endif %}</td>
+          </tr>
+          {% else %}<tr><td colspan="4" class="text-center text-muted py-4">No se encontraron usuarios</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="table-wrap">
+      <div class="p-3"><h5 class="m-0 fw-bold">Prestamos relacionados</h5></div>
+      <table class="table table-hover">
+        <thead><tr><th>Usuario</th><th>Libro</th><th>Entrega</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for p in prestamos %}
+          <tr><td>{{ p.usuario.nombre }}</td><td>{{ p.libro.titulo }}</td><td>{{ p.fecha_devolucion }}</td><td><span class="badge {{ p.clase_estado }}">{{ p.estado_actual }}</span></td></tr>
+          {% else %}<tr><td colspan="4" class="text-center text-muted py-4">No se encontraron prestamos</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-info">Escribe una palabra para buscar en todo el sistema.</div>
+{% endif %}
+{% endblock %}

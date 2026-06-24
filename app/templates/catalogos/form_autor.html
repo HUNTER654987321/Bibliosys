@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block page_title %}Editar autor{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="fw-bold">Editar autor</h3>
+  <a href="{{ url_for('catalogos.index') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i> Volver
+  </a>
+</div>
+
+<div class="card card-pro">
+  <div class="card-body">
+    <form method="post" class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Nombre</label>
+        <input name="nombre" class="form-control" required value="{{ autor.nombre }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Nacionalidad</label>
+        <input name="nacionalidad" class="form-control" value="{{ autor.nacionalidad or '' }}">
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary"><i class="bi bi-save"></i> Guardar cambios</button>
+        <a href="{{ url_for('catalogos.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

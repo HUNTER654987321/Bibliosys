@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block page_title %}Historial de prestamos{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <div>
+    <h3 class="fw-black mb-1">Historial de {{ usuario.nombre }}</h3>
+    <p class="text-muted mb-0">Registro completo de prestamos, devoluciones, vencimientos y multas del estudiante.</p>
+  </div>
+  <a href="{{ url_for('prestamos.listar') }}" class="btn btn-light"><i class="bi bi-arrow-left"></i> Volver</a>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><small>Total</small><h2>{{ datos.total }}</h2></div></div>
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><small>Activos</small><h2>{{ datos.activos }}</h2></div></div>
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><small>Vencidos</small><h2>{{ datos.vencidos }}</h2></div></div>
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><small>Multas Bs</small><h2>{{ '%.2f'|format(datos.multas) }}</h2></div></div>
+</div>
+
+<div class="table-wrap">
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr><th>ID</th><th>Libro</th><th>Prestamo</th><th>Entrega</th><th>Estado</th><th>Multa</th></tr>
+    </thead>
+    <tbody>
+      {% for p in prestamos %}
+      <tr>
+        <td>{{ p.id }}</td>
+        <td class="fw-semibold">{{ p.libro.titulo }}</td>
+        <td>{{ p.fecha_prestamo }}</td>
+        <td>{{ p.fecha_devolucion }}</td>
+        <td><span class="badge {{ p.clase_estado }}">{{ p.estado_actual }}</span></td>
+        <td>{% if p.multa %}Bs {{ '%.2f'|format(p.multa.monto) }}{% else %}<span class="text-muted">Sin multa</span>{% endif %}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="text-center text-muted py-4">Este usuario no tiene prestamos registrados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

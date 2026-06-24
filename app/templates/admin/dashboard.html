@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<div class="hero-card mb-4">
+  <div class="row align-items-center g-3">
+    <div class="col-lg-8">
+      <h1>Bienvenido, {{ current_user.nombre }}</h1>
+      <p>{{ config_sistema.nombre_biblioteca }} controla libros, usuarios, prestamos, devoluciones, reportes, stock e historial estudiantil.</p>
+    </div>
+    <div class="col-lg-4 text-lg-end hero-actions">
+      {% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}
+      <a href="{{ url_for('prestamos.nuevo') }}" class="btn btn-warning me-2"><i class="bi bi-plus-circle"></i> Nuevo prestamo</a>
+      <a href="{{ url_for('libros.nuevo') }}" class="btn btn-light"><i class="bi bi-book"></i> Nuevo libro</a>
+      {% else %}
+      <a href="{{ url_for('busqueda.index') }}" class="btn btn-light"><i class="bi bi-search"></i> Buscar libros</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><div class="metric-icon"><i class="bi bi-people-fill"></i></div><small>Usuarios</small><h2>{{ datos.usuarios }}</h2></div></div>
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><div class="metric-icon"><i class="bi bi-journal-bookmark-fill"></i></div><small>Libros</small><h2>{{ datos.libros }}</h2></div></div>
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><div class="metric-icon"><i class="bi bi-arrow-left-right"></i></div><small>Prestamos</small><h2>{{ datos.prestamos }}</h2></div></div>
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><div class="metric-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><small>Vencidos</small><h2>{{ datos.vencidos }}</h2></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-xl-8">
+    <div class="card-pro h-100">
+      <div class="card-header d-flex justify-content-between align-items-center"><span>Estado de prestamos</span><span class="badge badge-soft">Gestion actual</span></div>
+      <div class="card-body"><canvas id="loanChart" height="112"></canvas></div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card-pro h-100">
+      <div class="card-header">Estado del sistema</div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2"><span>Prestamos activos</span><strong>{{ datos.activos }}</strong></div>
+        <div class="progress mb-4" style="height:10px"><div class="progress-bar" style="width:{{ [10 + datos.activos * 8, 100]|min }}%"></div></div>
+        <div class="d-flex justify-content-between mb-2"><span>Libros disponibles</span><strong>{{ datos.disponibles }}</strong></div>
+        <div class="progress mb-4" style="height:10px"><div class="progress-bar" style="width:{{ [10 + datos.disponibles * 5, 100]|min }}%"></div></div>
+        <div class="d-flex justify-content-between"><span>Multas pendientes</span><strong>{{ datos.multas }}</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><a class="action-card" href="{{ url_for('libros.listar') }}"><i class="bi bi-book"></i><div><strong>Gestionar libros</strong><br><small class="text-muted">Catalogo completo</small></div></a></div>
+  <div class="col-md-3"><a class="action-card" href="{{ url_for('prestamos.listar') }}"><i class="bi bi-arrow-left-right"></i><div><strong>Prestamos</strong><br><small class="text-muted">Activos y vencidos</small></div></a></div>
+  <div class="col-md-3"><a class="action-card" href="{{ url_for('reportes.index') }}"><i class="bi bi-file-earmark-bar-graph"></i><div><strong>Reportes</strong><br><small class="text-muted">PDF y Excel</small></div></a></div>
+  <div class="col-md-3"><a class="action-card" href="{{ url_for('configuracion.index') }}"><i class="bi bi-gear"></i><div><strong>Configuracion</strong><br><small class="text-muted">Datos del sistema</small></div></a></div>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-xl-7">
+    <div class="table-wrap">
+      <div class="p-3 d-flex justify-content-between align-items-center"><h5 class="m-0 fw-black">Prestamos recientes</h5><a href="{{ url_for('prestamos.listar') }}" class="btn btn-sm btn-outline-primary">Ver todo</a></div>
+      <table class="table">
+        <thead><tr><th>Usuario</th><th>Libro</th><th>Entrega</th><th>Estado</th></tr></thead>
+        <tbody>
+        {% for p in ultimos %}
+          <tr><td>{{ p.usuario.nombre }}</td><td>{{ p.libro.titulo }}</td><td>{{ p.fecha_devolucion }}</td><td><span class="badge {{ p.clase_estado }}">{{ p.estado_actual }}</span></td></tr>
+        {% else %}<tr><td colspan="4" class="text-center text-muted py-4">No se encontraron registros</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-xl-5">
+    <div class="table-wrap">
+      <div class="p-3 d-flex justify-content-between align-items-center"><h5 class="m-0 fw-black">Libros mas prestados</h5>{% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}<a href="{{ url_for('reportes.index') }}" class="btn btn-sm btn-primary">Reportes</a>{% endif %}</div>
+      <table class="table">
+        <thead><tr><th>Titulo</th><th>Prestamos</th><th>Disp.</th></tr></thead>
+        <tbody>
+        {% for libro, total in populares %}
+          <tr><td>{{ libro.titulo }}</td><td><span class="badge badge-soft">{{ total }}</span></td><td><span class="badge {{ 'badge-ok' if libro.disponible > 0 else 'badge-danger-soft' }}">{{ libro.disponible }}</span></td></tr>
+        {% else %}
+          {% for l in libros %}<tr><td>{{ l.titulo }}</td><td><span class="text-muted">0</span></td><td><span class="badge badge-ok">{{ l.disponible }}</span></td></tr>{% else %}<tr><td colspan="3" class="text-center text-muted py-4">No hay libros registrados</td></tr>{% endfor %}
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const ctx = document.getElementById('loanChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Activos', 'Devueltos', 'Vencidos'],
+        datasets: [{label: 'Prestamos', data: [{{ datos.activos }}, {{ datos.devueltos }}, {{ datos.vencidos }}], backgroundColor:['#0f766e','#14b8a6','#dc2626']}]
+      },
+      options: {plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } }}
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block page_title %}{% if current_user.es_estudiante() %}Mis prestamos{% else %}Prestamos{% endif %}{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <div>
+    <h3 class="fw-black mb-1">{% if current_user.es_estudiante() %}Mis prestamos{% else %}Prestamos{% endif %}</h3>
+    <p class="text-muted mb-0">Control de prestamos, devoluciones, vencimientos y multas</p>
+  </div>
+  <div>
+    {% if current_user.es_estudiante() %}
+    <a href="{{ url_for('prestamos.mi_historial') }}" class="btn btn-outline-primary"><i class="bi bi-clock-history"></i> Mi historial</a>
+    {% endif %}
+    {% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}
+    <a href="{{ url_for('prestamos.nuevo') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nuevo prestamo</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}
+<div class="mb-3 d-flex gap-2 flex-wrap">
+  <a class="btn btn-sm btn-light" href="{{ url_for('prestamos.listar') }}">Todos</a>
+  <a class="btn btn-sm btn-outline-primary" href="{{ url_for('prestamos.listar', estado='activo') }}">Activos</a>
+  <a class="btn btn-sm btn-outline-danger" href="{{ url_for('prestamos.listar', estado='vencido') }}">Vencidos</a>
+  <a class="btn btn-sm btn-outline-success" href="{{ url_for('prestamos.listar', estado='devuelto') }}">Devueltos</a>
+</div>
+{% endif %}
+
+<div class="table-wrap">
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Usuario</th>
+        <th>Libro</th>
+        <th>Prestamo</th>
+        <th>Entrega</th>
+        <th>Estado</th>
+        <th>Multa</th>
+        {% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}<th>Accion</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in prestamos %}
+      <tr>
+        <td>{{ p.id }}</td>
+        <td>
+          {{ p.usuario.nombre }}
+          {% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}
+          <br><a class="small" href="{{ url_for('prestamos.historial', usuario_id=p.usuario.id) }}">Ver historial</a>
+          {% endif %}
+        </td>
+        <td class="fw-semibold">{{ p.libro.titulo }}</td>
+        <td>{{ p.fecha_prestamo }}</td>
+        <td>{{ p.fecha_devolucion }}</td>
+        <td><span class="badge {{ p.clase_estado }}">{{ p.estado_actual }}</span></td>
+        <td>
+          {% if p.multa %}<span class="badge badge-danger-soft">Bs {{ '%.2f'|format(p.multa.monto) }}</span>{% else %}<span class="text-muted">Sin multa</span>{% endif %}
+        </td>
+        {% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}
+        <td>
+          {% if p.estado_actual != 'Devuelto' %}
+          <a href="{{ url_for('prestamos.devolver', id=p.id) }}" class="btn btn-sm btn-outline-primary" onclick="return confirm('Registrar devolucion?');"><i class="bi bi-check2-circle"></i> Devolver</a>
+          {% else %}<span class="text-muted">Finalizado</span>{% endif %}
+        </td>
+        {% endif %}
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="text-center text-muted py-4">No hay prestamos registrados</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

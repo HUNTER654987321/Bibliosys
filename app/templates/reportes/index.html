@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block page_title %}Reportes{% endblock %}
+{% block content %}
+<div class="hero-card mb-4">
+  <div class="row align-items-center g-3">
+    <div class="col-lg-7">
+      <h1>Centro de reportes</h1>
+      <p>Resumen general del sistema, libros mas prestados y descargas en PDF o Excel.</p>
+    </div>
+    <div class="col-lg-5 text-lg-end hero-actions">
+      <div class="dropdown d-inline-block mb-2">
+        <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-book"></i> Libros</button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ url_for('reportes.libros_pdf') }}">PDF</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('reportes.libros_excel') }}">Excel</a></li>
+        </ul>
+      </div>
+      <div class="dropdown d-inline-block mb-2">
+        <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-arrow-left-right"></i> Prestamos</button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ url_for('reportes.prestamos_pdf') }}">PDF</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('reportes.prestamos_excel') }}">Excel</a></li>
+        </ul>
+      </div>
+      <div class="dropdown d-inline-block mb-2">
+        <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-people"></i> Usuarios</button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ url_for('reportes.usuarios_pdf') }}">PDF</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('reportes.usuarios_excel') }}">Excel</a></li>
+        </ul>
+      </div>
+      <div class="dropdown d-inline-block mb-2">
+        <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-trophy"></i> Populares</button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ url_for('reportes.populares_pdf') }}">PDF</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('reportes.populares_excel') }}">Excel</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><div class="metric-icon"><i class="bi bi-journal-bookmark-fill"></i></div><small>Libros</small><h2>{{ datos.libros }}</h2></div></div>
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><div class="metric-icon"><i class="bi bi-people-fill"></i></div><small>Usuarios</small><h2>{{ datos.usuarios }}</h2></div></div>
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><div class="metric-icon"><i class="bi bi-arrow-left-right"></i></div><small>Activos</small><h2>{{ datos.activos }}</h2></div></div>
+  <div class="col-md-6 col-xl-3"><div class="metric-card"><div class="metric-icon"><i class="bi bi-exclamation-triangle-fill"></i></div><small>Vencidos</small><h2>{{ datos.vencidos }}</h2></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-xl-7">
+    <div class="card-pro h-100">
+      <div class="card-header">Resumen de prestamos</div>
+      <div class="card-body"><canvas id="estadoChart" height="120"></canvas></div>
+    </div>
+  </div>
+  <div class="col-xl-5">
+    <div class="card-pro h-100">
+      <div class="card-header">Libros por categoria</div>
+      <div class="card-body">
+        {% for c in categorias %}
+        <div class="d-flex justify-content-between border-bottom py-2"><span>{{ c.nombre }}</span><strong>{{ c.libros|length }}</strong></div>
+        {% else %}<p class="text-muted">No hay categorias registradas</p>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-xl-6">
+    <div class="table-wrap h-100">
+      <div class="p-3 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 fw-black">Libros mas prestados</h5>
+        <div>
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('reportes.populares_pdf') }}">PDF</a>
+          <a class="btn btn-sm btn-outline-success" href="{{ url_for('reportes.populares_excel') }}">Excel</a>
+        </div>
+      </div>
+      <table class="table table-hover">
+        <thead><tr><th>Libro</th><th>Autor(es)</th><th>Prestamos</th><th>Disp.</th></tr></thead>
+        <tbody>
+          {% for libro, total in populares %}
+          <tr>
+            <td class="fw-semibold">{{ libro.titulo }}</td>
+            <td>{{ libro.autores | map(attribute='nombre') | join(', ') }}</td>
+            <td><span class="badge badge-soft">{{ total }}</span></td>
+            <td><span class="badge {{ 'badge-ok' if libro.disponible > 0 else 'badge-danger-soft' }}">{{ libro.disponible }}</span></td>
+          </tr>
+          {% else %}<tr><td colspan="4" class="text-center text-muted py-4">Aun no hay datos de prestamos.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="table-wrap h-100">
+      <div class="p-3"><h5 class="m-0 fw-black">Ultimos prestamos</h5></div>
+      <table class="table table-hover">
+        <thead><tr><th>Usuario</th><th>Libro</th><th>Entrega</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for p in prestamos %}
+          <tr>
+            <td>{{ p.usuario.nombre }}</td><td>{{ p.libro.titulo }}</td><td>{{ p.fecha_devolucion }}</td>
+            <td><span class="badge {{ p.clase_estado }}">{{ p.estado_actual }}</span></td>
+          </tr>
+          {% else %}<tr><td colspan="4" class="text-center text-muted py-4">No hay prestamos registrados</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const estadoCtx = document.getElementById('estadoChart');
+  if (estadoCtx) {
+    new Chart(estadoCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Activos', 'Devueltos', 'Vencidos', 'Multas'],
+        datasets: [{
+          label: 'Cantidad',
+          data: [{{ datos.activos }}, {{ datos.devueltos }}, {{ datos.vencidos }}, {{ datos.multas }}],
+          backgroundColor:['#0f766e','#14b8a6','#f59e0b','#dc2626']
+        }]
+      },
+      options: {plugins: {legend: {display: false}}, scales: {y: {beginAtZero: true}}}
+    });
+  }
+</script>
+{% endblock %}

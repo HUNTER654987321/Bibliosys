@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block page_title %}Libros{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <div>
+    <h3 class="fw-black mb-1">Libros</h3>
+    <p class="text-muted mb-0">Gestion del catalogo bibliografico y control de stock</p>
+  </div>
+  {% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}
+  <a href="{{ url_for('libros.nuevo') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nuevo libro</a>
+  {% endif %}
+</div>
+<div class="card card-pro">
+  <div class="card-body">
+    <form method="get" class="row g-2 mb-3">
+      <div class="col-md-10">
+        <input name="q" value="{{ q }}" class="form-control" placeholder="Buscar por titulo, ISBN, autor, categoria, editorial o ubicacion">
+      </div>
+      <div class="col-md-2 d-grid"><button class="btn btn-outline-primary"><i class="bi bi-search"></i> Buscar</button></div>
+    </form>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>ID</th><th>Titulo</th><th>Autor(es)</th><th>ISBN</th><th>Categoria</th><th>Editorial</th><th>Stock</th><th>Prestados</th><th>Disp.</th>{% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}<th>Acciones</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for libro in libros %}
+          <tr>
+            <td>{{ libro.id }}</td>
+            <td class="fw-semibold">{{ libro.titulo }}</td>
+            <td>{% if libro.autores %}{{ libro.autores | map(attribute='nombre') | join(', ') }}{% else %}<span class="text-muted">Sin autor</span>{% endif %}</td>
+            <td>{{ libro.isbn }}</td>
+            <td>{{ libro.categoria.nombre }}</td>
+            <td>{{ libro.editorial.nombre }}</td>
+            <td>{{ libro.stock }}</td>
+            <td><span class="badge badge-warn">{{ libro.prestamos_pendientes }}</span></td>
+            <td><span class="badge {{ 'badge-ok' if libro.disponible > 0 else 'badge-danger-soft' }}">{{ libro.disponible }}</span></td>
+            {% if current_user.tiene_rol('Administrador', 'Bibliotecario') %}
+            <td>
+              <a href="{{ url_for('libros.editar', id=libro.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Editar</a>
+              {% if current_user.tiene_rol('Administrador') %}
+              <a onclick="return confirm('Eliminar libro?')" href="{{ url_for('libros.eliminar', id=libro.id) }}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Eliminar</a>
+              {% endif %}
+            </td>
+            {% endif %}
+          </tr>
+          {% else %}
+          <tr><td colspan="10" class="text-center text-muted py-4">No hay libros registrados</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

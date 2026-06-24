@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ 'Editar usuario' if accion == 'editar' else 'Nuevo usuario' }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="fw-bold">{{ 'Editar usuario' if accion == 'editar' else 'Nuevo usuario' }}</h3>
+  <a href="{{ url_for('usuarios.listar') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i> Volver
+  </a>
+</div>
+
+<div class="card card-pro">
+  <div class="card-body">
+    <form method="post" class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Nombre</label>
+        <input
+          name="nombre"
+          class="form-control"
+          required
+          value="{{ usuario.nombre if usuario else '' }}"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Correo</label>
+        <input
+          name="email"
+          type="email"
+          class="form-control"
+          required
+          value="{{ usuario.email if usuario else '' }}"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Contraseña</label>
+        <input
+          name="password"
+          type="password"
+          class="form-control"
+          placeholder="{{ 'Dejar vacío para mantener la actual' if accion == 'editar' else 'Mínimo 6 caracteres' }}"
+        />
+        {% if accion == 'editar' %}
+        <small class="text-muted">Solo escriba una nueva contraseña si desea cambiarla.</small>
+        {% endif %}
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Rol</label>
+        <select name="rol_id" class="form-select" required>
+          {% for r in roles %}
+          <option value="{{ r.id }}" {% if usuario and usuario.rol_id == r.id %}selected{% endif %}>
+            {{ r.nombre }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-check form-switch mt-4">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="activo"
+            name="activo"
+            {% if not usuario or usuario.activo %}checked{% endif %}
+          />
+          <label class="form-check-label" for="activo">Usuario activo</label>
+        </div>
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary">
+          <i class="bi bi-save"></i> Guardar
+        </button>
+        <a href="{{ url_for('usuarios.listar') }}" class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
